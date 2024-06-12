@@ -3,7 +3,9 @@ Some codes to count particles in boxes and calculate statistics of these fluctua
 
 # Use and citation
 If you use this code please cite our ArXiv paper (https://arxiv.org/abs/2311.00647)
+
 [1] Mackay, E. K., Marbach, S., Sprinkle, B., & Thorneywork, A. L. (2023). The Countoscope: Measuring Self and Collective Dynamics without Trajectories. arXiv preprint arXiv:2311.00647. 
+
 and we will come up shortly with a Zenodo release for the code which you can cite as well 
 
 # Installation
