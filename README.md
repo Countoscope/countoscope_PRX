@@ -1,5 +1,5 @@
-# Box_Counting in python
-Some codes to count particles in boxes and calculate statistics of these fluctuating counts
+# Countoscope in python
+Some codes to count particles in boxes and calculate statistics of these the fluctuating counts
 
 # Use and citation
 If you use this code please cite our ArXiv paper (https://arxiv.org/abs/2311.00647)
