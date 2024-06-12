@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     ax = plt.gca()
     ax.set_xlabel('Rescaled time $t/L^2$')
-    ax.set_ylabel(r'Rescaled Number fluctuations $\langle (N(t) - N(0))^2 \rangle / Var(N)$')
+    ax.set_ylabel(r'Rescaled Number fluctuations $\langle (N(t) - N(0))^2 \rangle / L^2$')
     ax.loglog()
     plt.legend()
     plt.savefig('test_data/number_fluctuations_rescaled.png')
