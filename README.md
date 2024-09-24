@@ -1,8 +1,8 @@
 # Countoscope in python
-Some codes to count particles in boxes and calculate statistics of these the fluctuating counts
+Codes to count particles in boxes and calculate statistics of these the fluctuating counts
 
 # Use and citation
-If you use this code please cite our ArXiv paper (https://arxiv.org/abs/2311.00647)
+If you use this code please cite our paper available on ArXiv (https://arxiv.org/abs/2311.00647), and soon on Phys. Rev. X.
 
 [1] Mackay, E. K., Marbach, S., Sprinkle, B., & Thorneywork, A. L. (2023). The Countoscope: Measuring Self and Collective Dynamics without Trajectories. arXiv preprint arXiv:2311.00647. 
 
