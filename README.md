@@ -9,7 +9,7 @@ If you use this code please cite our paper available on ArXiv (https://arxiv.org
 and we will come up shortly with a Zenodo release for the code which you can cite as well 
 
 # Installation
-To install, clone this directory into your site-packages directory (eg `cd ~/.local/lib/python3.10/site-packages && git clone https://github.com/brennansprinkle/Box_Counting countoscope`)
+To install, clone this directory into your site-packages directory (eg `cd ~/.local/lib/python3.10/site-packages && git clone https://github.com/Countoscope/countoscope_PRX/ countoscope`)
 or simply download the codes
 
 # Content
@@ -23,7 +23,7 @@ or simply download the codes
 # Use
 To use
 ```py
-import Box_Counting as countoscope
+import countoscope as countoscope
 
 results = countoscope.calculate_nmsd(data=f"data.dat", window_size_x=217.6, window_size_y=174, box_sizes=Box_Ls, sep_sizes=sep)
 ```
