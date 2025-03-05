@@ -26,12 +26,11 @@ if __name__ == '__main__':
     # run the main counting code
     results = countoscope.calculate_nmsd(data=data, window_size_x=Lx, window_size_y=Ly, box_sizes=box_sizes, sep_sizes=sep_sizes)
     
-    # load the results and save the data
     N2_mean = results.nmsd
     N2_std = results.nmsd_std
-    N_mean = results.N_mean   
-    N_var_mod = results.N_var_mod
-    np.savez(f'{folder}{filename}_counted.npz', N2_mean=N2_mean, N2_std=N2_std, N_mean= N_mean, N_var_mod = N_var_mod, box_sizes=box_sizes, sep_sizes=sep_sizes)
+    # now do what you want with the data!
+    # I would save it into a numpy archive with np.savez:
+    np.savez(f'{folder}{filename}_counted.npz', N2_mean=N2_mean, N2_std=N2_std, box_sizes=box_sizes, sep_sizes=sep_sizes)
 
     
    

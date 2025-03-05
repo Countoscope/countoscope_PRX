@@ -1,0 +1,9 @@
+__pycache__/*
+Count_Data_Cpp/*
+eigen-3.4.0/*
+fftw-3.3.10/*
+fftw-install/*
+number_fluctuations_rescaled.png
+number_fluctuations.png
+.vscode/settings.json
+test_data/example_dataset_counted.npz

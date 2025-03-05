@@ -57,7 +57,8 @@ def msd_matrix(matrix):
     
     # we used to do this parralelisation in numba, but in testing, I found it was faster with multiprocessing, idk why
     with multiprocessing.Pool(16) as pool:
-        results = list(progressbar(pool.imap(msd_matrix_slice, slices), total=len(slices), desc='msd matrix'))
+        # results = list(progressbar(pool.imap(msd_matrix_slice, slices), total=len(slices), desc='msd matrix'))
+        results = list(pool.imap(msd_matrix_slice, slices))
 
     MSDs = np.zeros(matrix.shape)
 
@@ -68,6 +69,7 @@ def msd_matrix(matrix):
 
 def processDataFile(filename):
     data = np.fromfile(filename, dtype=float, sep=' ')
+    assert data.size
     #all_data = np.loadtxt('data/0.34_EKRM_trajs.dat', delimiter=',', skiprows=1)
     data = data.reshape((-1, 4))
 
@@ -336,6 +338,9 @@ def count_boxes(x, y, window_size_x, window_size_y, box_sizes_x, box_sizes_y, se
                 total_num_boxes_y = int(mod_ceil((window_size_y - offset_ys[box_index] - box_sizes_y[box_index]) / global_shift_y))
                 Counts = np.zeros((total_num_boxes_x, total_num_boxes_y, num_timesteps), dtype=np.uint16)
 
+                num_x_iters = min(num_x_iters, total_num_boxes_x) # these are needed in case we have so few boxes
+                num_y_iters = min(num_y_iters, total_num_boxes_y) # that we don't get round to needing all the possible iters
+
                 box_xs = np.full((total_num_boxes_x,), np.nan)
                 box_ys = np.full((total_num_boxes_y,), np.nan)
 
@@ -440,7 +445,7 @@ def check_provided_box_sizes(box_sizes, box_sizes_x, box_sizes_y, sep_sizes):
 def load_data_and_check_window_size(data, window_size_x, window_size_y):
     # load data
     if type(data) is str:
-        print("Reading data from file")
+        print("Reading data from file", data)
         Xs, Ys, min_x, max_x, min_y, max_y = processDataFile(data)
     else:
         assert np.all(~np.isnan(data)), "nan was found in data"
@@ -470,7 +475,8 @@ def load_data_and_check_window_size(data, window_size_x, window_size_y):
 
     return Xs, Ys, window_size_x, window_size_y
 
-def calculate_nmsd(data, sep_sizes, window_size_x=None, window_size_y=None, box_sizes=None, box_sizes_x=None, box_sizes_y=None, offset_xs=None, offset_ys=None, use_old_overlap=False, return_counts=False):
+def calculate_nmsd(data, sep_sizes, window_size_x=None, window_size_y=None, box_sizes=None, box_sizes_x=None, box_sizes_y=None, offset_xs=None, offset_ys=None, use_old_overlap=False,
+                   return_counts=False, skip_processing=False):
     print(f'Will use {numba.get_num_threads()} threads')
 
     # input parameter processing
@@ -518,33 +524,34 @@ def calculate_nmsd(data, sep_sizes, window_size_x=None, window_size_y=None, box_
     N_mean_std    = np.full(num_box_sizes, np.nan)
     N_var_mod_std = np.full(num_box_sizes, np.nan)
 
-    print('Compiling MSD and mean functions')
-    for box_index in range(num_box_sizes): # why isn't this a numba.prange?
-        print("Processing boxes", box_index+1, "of", num_box_sizes)
+    if not skip_processing:
+        print('Compiling MSD and mean functions')
+        for box_index in progressbar(range(num_box_sizes), desc='Calculating NMSDs'): # why isn't this a numba.prange?
+            # print("Processing boxes", box_index+1, "of", num_box_sizes)
 
-        mean_N, variance, mean_N_std, variance_std = computeMeanAndSecondMoment(CountMs[box_index])
-        variance_original = np.var(CountMs[box_index])
+            mean_N, variance, mean_N_std, variance_std = computeMeanAndSecondMoment(CountMs[box_index])
+            variance_original = np.var(CountMs[box_index])
 
-        alpha = 0.01
-        df = 1.0 * CountMs[box_index].size - 1.0
-        chi_lb = stats.chi2.ppf(0.5 * alpha, df)
-        chi_ub = stats.chi2.ppf(1.0 - 0.5 * alpha, df)
-        variance_sem_lb = (df / chi_lb) * variance
-        variance_sem_ub = (df / chi_ub) * variance
+            alpha = 0.01
+            df = 1.0 * CountMs[box_index].size - 1.0
+            chi_lb = stats.chi2.ppf(0.5 * alpha, df)
+            chi_ub = stats.chi2.ppf(1.0 - 0.5 * alpha, df)
+            variance_sem_lb = (df / chi_lb) * variance
+            variance_sem_ub = (df / chi_ub) * variance
 
-        N_mean       [box_index] = mean_N
-        N_mean_std   [box_index] = mean_N_std # after taking the mean particles in each box over time, this is the std.dev over all boxes
-        N_var_mod    [box_index] = variance # this is the variance in counts for one box, averaged over all boxes
-        N_var_mod_std[box_index] = variance_std
-        N_var_sem_lb [box_index] = variance_sem_lb
-        N_var_sem_ub [box_index] = variance_sem_ub
-        num_boxes    [box_index] = CountMs[box_index].shape[0] * CountMs[box_index].shape[1] # number of boxes counted over
-        N_var        [box_index] = variance_original # this is simply the variance over all counts
-        
-        MSDs = msd_matrix(CountMs[box_index])
+            N_mean       [box_index] = mean_N
+            N_mean_std   [box_index] = mean_N_std # after taking the mean particles in each box over time, this is the std.dev over all boxes
+            N_var_mod    [box_index] = variance # this is the variance in counts for one box, averaged over all boxes
+            N_var_mod_std[box_index] = variance_std
+            N_var_sem_lb [box_index] = variance_sem_lb
+            N_var_sem_ub [box_index] = variance_sem_ub
+            num_boxes    [box_index] = CountMs[box_index].shape[0] * CountMs[box_index].shape[1] # number of boxes counted over
+            N_var        [box_index] = variance_original # this is simply the variance over all counts
+            
+            MSDs = msd_matrix(CountMs[box_index])
 
-        MSD_means[box_index, :] = np.mean(MSDs, axis=(0, 1))
-        MSD_stds [box_index, :] = np.std (MSDs, axis=(0, 1))
+            MSD_means[box_index, :] = np.mean(MSDs, axis=(0, 1))
+            MSD_stds [box_index, :] = np.std (MSDs, axis=(0, 1))
 
     # we make versions of box_xs/box_ys padded with nan, so that it has a homogeneous shape, and can be a numpy array
     max_num_boxes_x = max([b.size for b in box_xs])
@@ -564,61 +571,9 @@ def calculate_nmsd(data, sep_sizes, window_size_x=None, window_size_y=None, box_
     else:
         all_counts = None
 
-    Results = collections.namedtuple('Results', ['nmsd', 'nmsd_std', 'N_mean', 'N_var', 'N_var_sem_lb', 'N_var_sem_ub', 'num_boxes', 'N_var_mod', 'N_mean_std', 'N_var_mod_std', 'counts', 'box_coords'])
+    Results = collections.namedtuple('Results', ['nmsd', 'nmsd_std', 'N_mean', 'N_var', 'N_var_sem_lb', 'N_var_sem_ub', 'num_boxes', 'N_var_mod',
+                                                 'N_mean_std', 'N_var_mod_std', 'counts', 'box_coords'])
     return Results(nmsd=MSD_means, nmsd_std=MSD_stds, N_mean=N_mean, N_var_mod=N_var_mod,
                        N_var_sem_lb=N_var_sem_lb, N_var_sem_ub=N_var_sem_ub, num_boxes=num_boxes,
                        N_var=N_var, N_mean_std=N_mean_std, N_var_mod_std=N_var_mod_std,
                        counts=all_counts, box_coords=all_coords)
-    # input parameter processing
-    box_sizes_x, box_sizes_y, sep_sizes = check_provided_box_sizes(box_sizes, box_sizes_x, box_sizes_y, sep_sizes)
-    
-    # load the data and check it
-    Xs, Ys, window_size_x, window_size_y = load_data_and_check_window_size(data, window_size_x, window_size_y)
-
-    assert np.all(box_sizes_x < window_size_x), "None of box_sizes(_x) can be bigger than window_size_x"
-    assert np.all(box_sizes_y < window_size_y), "None of box_sizes(_y) can be bigger than window_size_y"
-    assert np.all(sep_sizes < window_size_y), "None of sep_sizes can be bigger than window_size_x"
-    assert np.all(sep_sizes < window_size_y), "None of sep_sizes can be bigger than window_size_y"
-
-    # now do the actual counting
-    print("Compiling fast counting function (this may take a min. or so)")
-    Xnb = numba.typed.List(np.array(xi) for xi in Xs) # TODO why is this defined here not inside count_boxes?
-    Ynb = numba.typed.List(np.array(yi) for yi in Ys) # TODO why is this defined here not inside count_boxes?
-
-    CountMs = count_boxes(Xnb, Ynb, window_size_x=window_size_x, window_size_y=window_size_y,
-                                        box_sizes_x=box_sizes_x, box_sizes_y=box_sizes_y, sep_sizes=sep_sizes)
-
-    N_Stats = np.zeros((len(box_sizes_x), 6))
-
-    MSD_means = np.zeros((len(box_sizes_x), len(Xs)))
-    MSD_stds  = np.zeros((len(box_sizes_x), len(Xs)))
-
-    for box_index in range(len(box_sizes_x)):
-        # why isn't this a numba.prange?
-        print("Processing Box size:", box_sizes_x[box_index], "*", box_sizes_y[box_index])
-
-        N_Stats[box_index, 0] = box_sizes_x[box_index]
-        #mean, variance, variance_sem_lb, variance_sem_ub = computeMeanAndSecondMoment(CountMs[lbIdx])
-        mean_N, variance = computeMeanAndSecondMoment(CountMs[box_index])
-
-        ####################
-        alpha = 0.01
-        df = 1.0 * CountMs[box_index].size - 1.0
-        chi_lb = stats.chi2.ppf(0.5 * alpha, df)
-        chi_ub = stats.chi2.ppf(1.0 - 0.5 * alpha, df)
-        variance_sem_lb = (df / chi_lb) * variance
-        variance_sem_ub = (df / chi_ub) * variance
-        ####################
-
-        N_Stats[box_index, 1] = mean_N
-        N_Stats[box_index, 2] = variance
-        N_Stats[box_index, 3] = variance_sem_lb
-        N_Stats[box_index, 4] = variance_sem_ub
-        N_Stats[box_index, 5] = CountMs[box_index].shape[0] * CountMs[box_index].shape[1] # number of boxes counted over
-
-        MSDs = msd_matrix(CountMs[box_index])
-
-        MSD_means[box_index, :] = np.mean(MSDs, axis=(0, 1))
-        MSD_stds [box_index, :] = np.std (MSDs, axis=(0, 1))
-
-    return MSD_means, MSD_stds, N_Stats

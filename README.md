@@ -42,6 +42,7 @@ The parameters to `calculate_nmsd` are:
   * however, if you want one of the width or height to be constant, you can just pass a single value to one of `box_sizes_x` or `box_sizes_y` and then all boxes will have the same width or height.
 * `sep_sizes` should be an array of the same size as `box_sizes`/`box_sizes_x`/`box_sizes_y`
   * if any elements of `sep_sizes` are negative, the boxes will overlap. This causes the library to use a different algorithm to count the particles which is substantially slower. You should be careful when choosing the overlaps; if the overlap is a rational fraction of the box size then some boxes' edges will touch, leaving the counts correlated.
+* set `return_counts=True` to return the raw counts
 
 The return object:
 
@@ -57,7 +58,7 @@ The return object:
 | `results.N_var_mod`     | len(box_sizes)                                             | variance of number of particles in box over time, averaged over all boxes               |
 | `results.N_var_mod_std` | len(box_sizes)                                             | standard deviation of (variance of number of particles in box over time) over all boxes |
 | `results.num_boxes`     | len(box_sizes)                                             | number of boxes used for each box size                                                  |
-| `results.counts`        | len(box_sizes) * max_boxes_y * max_boxes_x * num_timesteps | the raw counts in each box                                                              |
+| `results.counts`        | len(box_sizes) * max_boxes_y * max_boxes_x * num_timesteps | the raw counts in each box (only provided if `return_counts=True` was given)            |
 | `results.box_coords`    | len(box_sizes) * max_boxes_y * max_boxes_x * 2             | the (x, y) positions of the lower-left corner of each box                               |
 
 
