@@ -9,7 +9,7 @@ If you use this code please cite our paper available on ArXiv (https://arxiv.org
 and we will come up shortly with a Zenodo release for the code which you can cite as well 
 
 # Installation
-To install, clone this directory into your site-packages directory (eg `cd ~/.local/lib/python3.10/site-packages && git clone https://github.com/Countoscope/countoscope_PRX/ countoscope`)
+To install, clone this directory and run `pip install -e .` from within `countoscope_PRX`
 or simply download the codes
 
 # Content
