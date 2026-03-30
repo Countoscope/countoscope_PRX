@@ -9,3 +9,4 @@ number_fluctuations.png
 test_data/example_dataset_counted.npz
 src/countoscope_PRX.egg-info/*
 src/countoscope_PRX/__pycache__/*
+tests/test_data/example_dataset_counted.npz

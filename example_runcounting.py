@@ -1,5 +1,5 @@
 import numpy as np
-import countoscope
+import countoscope_PRX as countoscope
 
 import matplotlib.pyplot as plt # for plotting purposes
 from matplotlib import cm
@@ -17,7 +17,7 @@ if __name__ == '__main__':
     
     # load data
     filename = 'example_dataset'
-    folder = 'test_data/'
+    folder = 'tests/test_data/'
     extension = '.txt'
 
     data = np.fromfile(f'{folder}{filename}{extension}', dtype=float, sep=' ') # load data array as a single big line
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     ax.set_ylabel(r'Number fluctuations $\langle (N(t) - N(0))^2 \rangle$')
     ax.loglog()
     plt.legend()
-    plt.savefig('test_data/number_fluctuations.png')
+    plt.savefig(f'{folder}{filename}/number_fluctuations.png')
     plt.show()
     plt.clf()
 
@@ -65,5 +65,5 @@ if __name__ == '__main__':
     ax.set_ylabel(r'Rescaled Number fluctuations $\langle (N(t) - N(0))^2 \rangle / L^2$')
     ax.loglog()
     plt.legend()
-    plt.savefig('test_data/number_fluctuations_rescaled.png')
+    plt.savefig(f'{folder}{filename}/number_fluctuations_rescaled.png')
     plt.show()

@@ -1,29 +1,16 @@
 # Countoscope in python
 Codes to count particles in boxes and calculate statistics of these the fluctuating counts
 
-# Use and citation
-If you use this code please cite our paper available on ArXiv (https://arxiv.org/abs/2311.00647), and soon on Phys. Rev. X.
+## Use and citation
+If you use this code please cite [this Zenodo release](https://doi.org/10.5281/zenodo.13837167).
 
-[1] Mackay, E. K., Marbach, S., Sprinkle, B., & Thorneywork, A. L. (2023). The Countoscope: Measuring Self and Collective Dynamics without Trajectories. arXiv preprint arXiv:2311.00647. 
-
-and we will come up shortly with a Zenodo release for the code which you can cite as well 
-
-# Installation
+## Installation
 To install, clone this directory and run `pip install -e .` from within `countoscope_PRX`
-or simply download the codes
 
-# Content
-* example_runcounting.py              * example code to run the counting algorithm and plot relevant curves
-* test_data/example_dataset.txt       * example data set simulated from Brownian motion of non-interacting particles
-* Box_Count_Stats.py                  * source codes to count particles in boxes and calculate statistics
-* Numba_Box_Count_stats.py            * same as above but with just-in-time-compilation. Sometimes numba is not compatible with some machines.
-* LICENSE                             * licence agreement
-* Old_Codes/                          * old codes directory
-
-# Use
+## Use
 To use
 ```py
-import countoscope as countoscope
+import countoscope_PRX as countoscope
 
 results = countoscope.calculate_nmsd(data=f"data.dat", window_size_x=217.6, window_size_y=174, box_sizes=Box_Ls, sep_sizes=sep)
 ```
@@ -62,8 +49,11 @@ The return object:
 | `results.box_coords`    | len(box_sizes) * max_boxes_y * max_boxes_x * 2             | the (x, y) positions of the lower-left corner of each box                               |
 
 
-# Dependencies
+## Dependencies
 numpy, scipy, and numba. By default, numba will run using as many threads as you have cores on your machine. Use `NUMBA_NUM_THREADS=16 python ....` to limit numba to a certain number of threads if you don't want it to use all your cores. If `tqdm` is installed, we will use it for nice progress bars.
 
-# Debugging
+## Debugging
 If you get an annoying C error like `Segmentation fault`, try running with `NUMBA_DISABLE_JIT=1 python myscript.py` to disable numba compilation (it will take much longer), and see if you get any pure Python errors
+
+## Tests
+The tests run with `unittest`: `python tests/test.py`
