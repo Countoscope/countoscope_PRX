@@ -51,7 +51,7 @@ if __name__ == '__main__':
     ax.set_ylabel(r'Number fluctuations $\langle (N(t) - N(0))^2 \rangle$')
     ax.loglog()
     plt.legend()
-    plt.savefig(f'{folder}{filename}/number_fluctuations.png')
+    plt.savefig(f'{folder}/number_fluctuations.png')
     plt.show()
     plt.clf()
 
@@ -65,5 +65,5 @@ if __name__ == '__main__':
     ax.set_ylabel(r'Rescaled Number fluctuations $\langle (N(t) - N(0))^2 \rangle / L^2$')
     ax.loglog()
     plt.legend()
-    plt.savefig(f'{folder}{filename}/number_fluctuations_rescaled.png')
+    plt.savefig(f'{folder}/number_fluctuations_rescaled.png')
     plt.show()

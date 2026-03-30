@@ -1,4 +1,4 @@
-# Countoscope in python
+# Countoscope Python library
 Codes to count particles in boxes and calculate statistics of these the fluctuating counts
 
 ## Use and citation
